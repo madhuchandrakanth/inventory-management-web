@@ -71,7 +71,7 @@ const Dashboard = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
               <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} />
               <YAxis stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} tickFormatter={(value) => `₹${value}`} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--glass-border)', borderRadius: '12px', color: 'var(--text-main)', backdropFilter: 'blur(12px)' }}
                 itemStyle={{ color: 'var(--text-main)' }}
               />
