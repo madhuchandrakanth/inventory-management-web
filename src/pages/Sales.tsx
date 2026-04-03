@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Download, ShoppingBag } from 'lucide-react';
 
 const MOCK_SALES = [

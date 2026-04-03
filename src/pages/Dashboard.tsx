@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { IndianRupee, Package, TrendingUp, Users } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DashboardService, type DashboardData } from '../services/dashboard-service';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StatCard = ({ title, value, icon, trend, isPositive, trendText }: any) => (
   <div className="glass-panel">
     <div className="flex justify-between items-center mb-4">
@@ -34,10 +35,11 @@ const Dashboard = () => {
       try {
         const result = await DashboardService.getDashboardData(controller.signal);
         setData(result);
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Ignore errors caused by standard AbortController cancellation natively
-        if (error.name !== 'AbortError') {
-          console.error("Error fetching dashboard data:", error);
+        const err = error as Error;
+        if (err.name !== 'AbortError') {
+          console.error("Error fetching dashboard data:", err);
         }
       } finally {
         setLoading(false);
