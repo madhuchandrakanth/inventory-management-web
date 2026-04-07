@@ -3,7 +3,10 @@ import { SessionService } from './services/session-service';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
+import Shops from './pages/Shops';
+import ShopForm from './pages/ShopForm';
 import Products from './pages/Products';
+import ProductForm from './pages/ProductForm';
 import Sales from './pages/Sales';
 import AuthLayout from './components/AuthLayout';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -41,7 +44,12 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/shops" element={<Shops />} />
+            <Route path="/shops/new" element={<ShopForm />} />
+            <Route path="/shops/:id/edit" element={<ShopForm />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/products/new" element={<ProductForm />} />
+            <Route path="/products/:id/edit" element={<ProductForm />} />
             <Route path="/sales" element={<Sales />} />
           </Route>
         </Route>

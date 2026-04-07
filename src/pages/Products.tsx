@@ -1,87 +1,131 @@
-import { useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Package, Plus, Edit, Tag, AlertCircle } from 'lucide-react';
+import { ProductsService } from '../services/products-service';
 
-const MOCK_PRODUCTS = [
-  { id: 1, name: 'Premium Wireless Headphones', category: 'Electronics', stock: 45, status: 'In Stock', price: '₹299.99', cost: '₹150.00' },
-  { id: 2, name: 'Ergonomic Office Chair', category: 'Furniture', stock: 12, status: 'Low Stock', price: '₹199.50', cost: '₹90.00' },
-  { id: 3, name: 'Minimalist Desk Lamp', category: 'Home', stock: 0, status: 'Out of Stock', price: '₹49.99', cost: '₹20.00' },
-  { id: 4, name: 'Mechanical Keyboard Switch Set', category: 'Electronics', stock: 124, status: 'In Stock', price: '₹34.99', cost: '₹12.00' },
-  { id: 5, name: 'Stainless Steel Water Bottle', category: 'Accessories', stock: 85, status: 'In Stock', price: '₹24.00', cost: '₹8.50' },
-];
+interface Product {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  price: number;
+  stock_quantity: number;
+  status: string;
+}
 
 const Products = () => {
-  const [products] = useState(MOCK_PRODUCTS);
+  const navigate = useNavigate();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+
+
+
+  useEffect(() => {
+    const controller = new AbortController();
+    
+    const fetchProductsWithSignal = async () => {
+      try {
+        setIsPageLoading(true);
+        const data = await ProductsService.getProducts();
+        const resData = data as { items?: Product[] };
+        setProducts(Array.isArray(data) ? (data as Product[]) : resData.items || []);
+      } catch (error: unknown) {
+        const err = error as Error;
+        if (err.name !== 'AbortError') {
+          console.warn("Failed to fetch products. Using mock data or empty list.");
+        }
+        setProducts([]);
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+    
+    fetchProductsWithSignal();
+    
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  const getStatusBadgeClass = (status: string) => {
+    switch(status.toLowerCase()) {
+      case 'in stock': return 'badge-success';
+      case 'low stock': return 'badge-warning';
+      case 'out of stock': return 'badge-danger';
+      default: return 'bg-gray-200 text-gray-800';
+    }
+  };
 
   return (
     <div>
       <div className="flex justify-between items-end mb-8">
         <div>
           <h1 className="text-3xl font-bold">Products Inventory</h1>
-          <p className="text-muted">Manage your catalog, stock levels, and pricing.</p>
+          <p className="text-muted">Manage stock quantities, item descriptions, and categorization.</p>
         </div>
-        <button className="btn btn-primary">
-          <Plus size={18} />
-          <span>Add Product</span>
-        </button>
       </div>
 
-      <div className="glass-panel">
-        <div className="flex justify-between items-center mb-6">
-          <div className="input-group" style={{ margin: 0, width: '350px' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text" 
-                className="input-field" 
-                placeholder="Search products by name or category..." 
-                style={{ paddingLeft: '2.5rem', background: 'rgba(15, 23, 42, 0.8)' }}
-              />
+      {isPageLoading ? (
+        <div className="flex items-center justify-center p-12 text-muted">Loading products...</div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          
+          {/* Create Product Card */}
+          <div
+            className="glass-panel flex flex-col items-center justify-center cursor-pointer"
+            style={{ minHeight: '140px', border: '2px dashed var(--border-color)', background: 'transparent', padding: '1rem' }}
+            onClick={() => navigate('/products/new')}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--primary-color)')}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
+          >
+            <div className="btn-icon-custom mb-2" style={{ background: 'var(--primary-color)', color: 'white', padding: '0.75rem' }}>
+              <Plus size={20} />
             </div>
+            <h3 className="font-bold text-base">Add Product</h3>
           </div>
-          <button className="btn btn-outline">
-            <Filter size={18} />
-            <span>Filters</span>
-          </button>
-        </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: 'var(--glass-border)', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                <th style={{ padding: '1rem', fontWeight: 500 }}>Product Name</th>
-                <th style={{ padding: '1rem', fontWeight: 500 }}>Category</th>
-                <th style={{ padding: '1rem', fontWeight: 500 }}>Stock</th>
-                <th style={{ padding: '1rem', fontWeight: 500 }}>Status</th>
-                <th style={{ padding: '1rem', fontWeight: 500 }}>Price</th>
-                <th style={{ padding: '1rem', fontWeight: 500 }}>Cost</th>
-                <th style={{ padding: '1rem', fontWeight: 500, textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', transition: 'var(--transition)' }}>
-                  <td style={{ padding: '1rem', fontWeight: 500 }}>{product.name}</td>
-                  <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>{product.category}</td>
-                  <td style={{ padding: '1rem' }}>{product.stock}</td>
-                  <td style={{ padding: '1rem' }}>
-                    <span className={`badge ${product.status === 'In Stock' ? 'badge-success' : product.status === 'Low Stock' ? 'badge-warning' : 'badge-danger'}`}>
-                      {product.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '1rem', fontWeight: 500 }}>{product.price}</td>
-                  <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>{product.cost}</td>
-                  <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    <div className="flex items-center justify-end gap-2">
-                      <button className="btn-icon-custom" style={{ padding: '0.35rem' }} title="Edit"><Edit2 size={16} /></button>
-                      <button className="btn-icon-custom" style={{ padding: '0.35rem', color: 'var(--danger)' }} title="Delete"><Trash2 size={16} /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Existing Products List */}
+          {products.map((product) => (
+            <div key={product.id} className="glass-panel flex flex-col justify-between" style={{ minHeight: '140px', padding: '1rem' }}>
+              <div>
+                <div className="flex justify-between items-start mb-2">
+                  <div style={{ background: 'var(--bg-main)', padding: '0.5rem', borderRadius: '10px' }}>
+                    <Package size={18} color="var(--primary-color)" />
+                  </div>
+                  <span className={`badge ${getStatusBadgeClass(product.status)}`} style={{ fontSize: '0.65rem' }}>
+                    {product.status}
+                  </span>
+                </div>
+                <h3 className="font-bold text-md mb-1 truncate" title={product.name}>{product.name}</h3>
+                
+                <div className="flex items-center gap-2 text-muted text-xs">
+                  <span className="font-semibold text-[var(--text-main)]">₹{product.price}</span>
+                  <span>•</span>
+                  <div className="flex items-center gap-1">
+                    <Tag size={10} />
+                    <span className="truncate">{product.category}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-3 pt-3 border-t border-[var(--border-color)] flex justify-between items-center">
+                <div className="flex items-center gap-1 text-xs text-muted">
+                  <AlertCircle size={12} className={product.stock_quantity <= 10 ? 'text-[var(--warning)]' : ''}/>
+                  <span>Stock: {product.stock_quantity}</span>
+                </div>
+                <button
+                  className="btn-icon-custom p-1"
+                  style={{ borderRadius: '6px' }}
+                  onClick={() => navigate(`/products/${product.id}/edit`)}
+                  title="Update Product"
+                >
+                  <Edit size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 };

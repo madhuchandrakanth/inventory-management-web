@@ -57,5 +57,34 @@ export class ApiService {
 
     return response.json();
   }
+
+  protected static async put<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
+    const token = SessionService.getToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(body),
+      signal,
+    });
+
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || errorData.message || `HTTP error! status: ${response.status}`);
+      } catch (err: unknown) {
+        const e = err as Error;
+        throw new Error(e.message || `HTTP error! status: ${response.status}`);
+      }
+    }
+
+    return response.json();
+  }
 }
 

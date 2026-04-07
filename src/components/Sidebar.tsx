@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Store, Package, ShoppingCart, Users, Settings, BookOpen } from 'lucide-react';
 
 const Sidebar = () => {
   return (
@@ -15,6 +15,10 @@ const Sidebar = () => {
         <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <LayoutDashboard size={20} />
           <span>Dashboard</span>
+        </NavLink>
+        <NavLink to="/shops" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          <Store size={20} />
+          <span>My Shops</span>
         </NavLink>
         <NavLink to="/products" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <Package size={20} />

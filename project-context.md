@@ -2,7 +2,7 @@
 
 - **Project Name:** [Inventory management system]
 - **Core Objective:** [Inventory management system for small shops]
-- **Tech Stack:** [Angular, Python, AWS]
+- **Tech Stack:** [React (Vite + TypeScript), Python (FastAPI), AWS]
 - **Primary Database:** [PostgreSQL / DynamoDB]
 - **Architectural Style:** [Serverless, Microservices, or Monolithic]
 
